@@ -1,0 +1,55 @@
+import java.awt.Color;
+import java.util.Random;
+
+import robocode.*;
+
+public class RoboEficiente extends AdvancedRobot {
+
+    private Random random = new Random();
+    private double heading;
+    private double energy;
+
+    public void run() {
+        setBodyColor(Color.GREEN);
+        setGunColor(Color.RED);
+        setScanColor(Color.BLUE);
+
+        heading = getHeading();
+        energy = getEnergy();
+    }
+
+    public void onScannedRobot(ScannedRobotEvent e) {
+        double angleToEnemy = getHeading() + e.getBearing();
+        double distanceToEnemy = e.getDistance();
+        double enemyEnergy = e.getEnergy();
+
+        // Ajuste a mira para o inimigo
+        setTurnGunAngle(normalizeAngle(angleToEnemy - getGunHeading()));
+
+        // Atire com base na energia do inimigo e na distância
+        if (distanceToEnemy < 100 && energy > 0.5) {
+            fire(Math.min(3, energy));
+        } else if (distanceToEnemy < 200 && energy > 0.25) {
+            fire(Math.min(2, energy));
+        } else if (distanceToEnemy < 300 && energy > 0.1) {
+            fire(Math.min(1, energy));
+        }
+
+        // Desvie dos ataques do inimigo
+        if (enemyEnergy > energy + 0.2) {
+            double randomAngle = random.nextDouble() * 180 - 90;
+            setTurnAngle(randomAngle);
+            setAhead(random.nextDouble() * 100 - 50);
+        }
+    }
+
+    private double normalizeAngle(double angle) {
+        while (angle < -180) {
+            angle += 360;
+        }
+        while (angle > 180) {
+            angle -= 360;
+        }
+        return angle;
+    }
+}

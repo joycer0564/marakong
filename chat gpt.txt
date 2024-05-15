@@ -1,0 +1,37 @@
+import robocode.*;
+import java.awt.Color;
+
+public class MeuRobo extends AdvancedRobot {
+    public void run() {
+        setColors(Color.red,Color.blue,Color.green); // definir cores do robô
+        setBulletColor(Color.yellow); // cor dos tiros
+        
+        while(true) {
+            // Movimento: seguir o inimigo
+            turnGunRight(360); // girar a arma para procurar o inimigo
+            ahead(100); // andar para frente
+            
+            // Verificar se o inimigo está à vista
+            if (getRadarTurnRemaining() == 0) {
+                setTurnRadarRight(360); // girar o radar para procurar o inimigo
+            }
+        }
+    }
+
+    public void onScannedRobot(ScannedRobotEvent e) {
+        // Calcular a direção para o inimigo
+        double angulo = getHeading() + e.getBearing();
+        
+        // Movimento: virar em direção ao inimigo
+        turnRight(e.getBearing());
+        
+        // Ataque: disparar
+        fire(3); // atirar com força 3 (ajuste conforme necessário)
+    }
+
+    public void onHitByBullet(HitByBulletEvent e) {
+        // Se for atingido por um tiro, virar para outra direção
+        turnRight(90); // virar 90 graus para a direita (ajuste conforme necessário)
+        ahead(100); // andar para frente
+    }
+}
